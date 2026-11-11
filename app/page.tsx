@@ -67,10 +67,10 @@ export default function QuizPage() {
   }, [numberOfProblems, refresh])
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6 p-6">
-      <h1 className="text-2xl font-bold text-blue-500">Problem List</h1>
+    <>
+      <h1 className="mt-6 text-2xl font-bold text-blue-500">Problem List</h1>
 
-      <div className="flex items-center gap-4">
+      <div className="my-3 flex items-center gap-4">
         <Select
           value={String(numberOfProblems)}
           onValueChange={(value) => setNumberOfProblems(Number(value))}
@@ -90,7 +90,7 @@ export default function QuizPage() {
         <Button onClick={() => setRefresh((n) => n + 1)}>New Problems</Button>
       </div>
 
-      <Table>
+      <Table className="max-w-md">
         <TableHeader>
           <TableRow>
             <TableHead>#</TableHead>
@@ -108,6 +108,6 @@ export default function QuizPage() {
           ))}
         </TableBody>
       </Table>
-    </main>
+    </>
   )
 }
