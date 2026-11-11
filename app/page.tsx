@@ -68,7 +68,7 @@ export default function QuizPage() {
 
   return (
     <main className="mx-auto max-w-3xl space-y-6 p-6">
-      <h1 className="text-2xl font-bold">Algebra Quiz</h1>
+      <h1 className="text-2xl font-bold text-blue-500">Problem List</h1>
 
       <div className="flex items-center gap-4">
         <Select
@@ -95,6 +95,7 @@ export default function QuizPage() {
           <TableRow>
             <TableHead>#</TableHead>
             <TableHead>Problem</TableHead>
+            <TableHead>Answer</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -102,6 +103,7 @@ export default function QuizPage() {
             <TableRow key={problem.id}>
               <TableCell>{problem.id}</TableCell>
               <TableCell>{problem.text}</TableCell>
+              <TableCell>{problem.answer}</TableCell>
             </TableRow>
           ))}
         </TableBody>
