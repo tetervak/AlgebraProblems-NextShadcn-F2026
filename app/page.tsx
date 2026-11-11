@@ -41,7 +41,7 @@ export default function QuizPage() {
     async function loadProblems() {
       try {
         const response = await fetch(
-          `http://localhost:8080/random-quiz?number-of-problems=${numberOfProblems}`,
+          `http://localhost:8080/api/random-quiz?number-of-problems=${numberOfProblems}`,
           { signal: controller.signal }
         )
 
