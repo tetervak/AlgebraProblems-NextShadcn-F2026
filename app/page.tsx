@@ -76,7 +76,7 @@ export default function QuizPage() {
           onValueChange={(value) => setNumberOfProblems(Number(value))}
         >
           <SelectTrigger className="w-48">
-            <SelectValue />
+            {`${numberOfProblems} problems`}
           </SelectTrigger>
           <SelectContent>
             {[5, 10, 15, 20].map((n) => (
