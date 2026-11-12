@@ -1,14 +1,14 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
+import { useQuiz } from "@/hooks/use-quiz"
 import { Button } from "@/components/ui/button"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select"
 import {
   Table,
@@ -19,52 +19,10 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-interface Problem {
-  id: number
-  text: string
-  answer: number
-}
-
-interface Quiz {
-  numberOfProblems: number
-  problems: Problem[]
-}
-
 export default function QuizPage() {
   const [numberOfProblems, setNumberOfProblems] = useState(5)
-  const [refresh, setRefresh] = useState(0)
-  const [quiz, setQuiz] = useState<Quiz | null>(null)
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    async function loadProblems() {
-      try {
-        const response = await fetch(
-          `http://localhost:8080/api/random-quiz?number-of-problems=${numberOfProblems}`,
-          { signal: controller.signal }
-        )
-
-        if (!response.ok) {
-          if (!controller.signal.aborted) {
-            console.error(new Error("Failed to fetch problems"))
-          }
-          return
-        }
-
-        const data: Quiz = await response.json()
-        setQuiz(data)
-      } catch (error) {
-        if (!controller.signal.aborted) {
-          console.error(error)
-        }
-      }
-    }
-
-    void loadProblems()
-
-    return () => controller.abort()
-  }, [numberOfProblems, refresh])
+  const { quiz, isLoading, isValidating, isError, error, mutate } =
+    useQuiz(numberOfProblems)
 
   return (
     <>
@@ -87,27 +45,59 @@ export default function QuizPage() {
           </SelectContent>
         </Select>
 
-        <Button onClick={() => setRefresh((n) => n + 1)}>New Problems</Button>
+        <Button
+          onClick={() => void mutate()}
+          disabled={isLoading || isValidating}
+        >
+          {isValidating ? "Loading..." : "New Problems"}
+        </Button>
       </div>
 
-      <Table className="max-w-md">
-        <TableHeader>
-          <TableRow>
-            <TableHead>#</TableHead>
-            <TableHead>Problem</TableHead>
-            <TableHead>Answer</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {quiz?.problems.map((problem) => (
-            <TableRow key={problem.id}>
-              <TableCell>{problem.id}</TableCell>
-              <TableCell>{problem.text}</TableCell>
-              <TableCell>{problem.answer}</TableCell>
+      {isLoading && (
+        <div className="flex items-center gap-2 py-8 text-muted-foreground">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+          <span>Loading problems...</span>
+        </div>
+      )}
+
+      {isError && (
+        <div className="my-4 max-w-md rounded-md border border-destructive/50 bg-destructive/10 p-4 text-destructive">
+          <p className="font-semibold">Failed to fetch problems</p>
+          <p className="mt-1 text-sm text-destructive/80">
+            {error?.message ??
+              "An error occurred while fetching the quiz data."}
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-3"
+            onClick={() => void mutate()}
+          >
+            Retry
+          </Button>
+        </div>
+      )}
+
+      {!isLoading && !isError && quiz && (
+        <Table className="max-w-md">
+          <TableHeader>
+            <TableRow>
+              <TableHead>#</TableHead>
+              <TableHead>Problem</TableHead>
+              <TableHead>Answer</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {quiz.problems.map((problem) => (
+              <TableRow key={problem.id}>
+                <TableCell>{problem.id}</TableCell>
+                <TableCell>{problem.text}</TableCell>
+                <TableCell>{problem.answer}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </>
   )
 }
